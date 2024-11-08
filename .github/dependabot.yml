@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"  # Define the package manager
+    directory: "/"  # Location of the gradle package manifest (build.gradle)
+    schedule:
+      interval: "daily"  # Schedule to check for updates daily
+    registries:
+      - mineral-dev  # This refers to the registry id defined below
+
+registries:
+  mineral-dev:
+    type: "maven-repository"  # Use Maven for Gradle repositories
+    url: "https://repo.mineral.gg/private"  # GitHub Packages Maven URL
+    username: "${{ secrets.REPOSILITE_USERNAME }}"  
+    password: "${{ secrets.REPOSILITE_PASSWORD }}"
