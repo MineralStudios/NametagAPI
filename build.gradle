@@ -1,16 +1,64 @@
-apply from: '../gradle-super/artifactory-deploy.gradle'
-apply from: '../bukkit-gradle/minecraft.gradle'
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
 
-version = '1.3.0-develop'
+group = 'gg.mineral'
+version = new Date().format('yyyyMMdd')
 
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
+repositories {
+    mavenCentral()
+    maven {
+        name "mineralDevPrivate"
+        url "https://repo.mineral.gg/private"
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
+        }
     }
+}
 
-    dependencies {
-        classpath group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2+'
-        classpath group: 'eu.appsatori', name: 'gradle-fatjar-plugin', version: '0.+'
+dependencies {
+    compileOnly 'gg.mineral.mineralspigot:mineralspigot-server:20241106-17.09.41'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+compileJava {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+    options.compilerArgs += ['-parameters']
+}
+
+jar {
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+afterEvaluate {project ->
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifactId = project.name
+                version = new Date().format("yyyyMMdd-HH.mm.ss")
+            }
+        }
+
+        repositories {
+            maven {
+                url = uri("https://repo.mineral.gg/private")
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
+                }
+            }
+        }
     }
 }
