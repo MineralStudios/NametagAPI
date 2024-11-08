@@ -427,6 +427,7 @@ public final class NametagManager {
         teams.remove(team);
     }
 
+    @Nullable
     private TeamInfo removeFromTeam(String player) {
         for (val team : teams.keySet()) {
             val list = teams.get(team);
