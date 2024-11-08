@@ -2,16 +2,20 @@ package io.isles.nametagapi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import lombok.val;
 
 /**
  * This class dynamically creates teams with numerical names and certain
@@ -26,8 +30,8 @@ final class NametagManager {
 
     /** Prefix to append to all team names. */
     private static final String TEAM_NAME_PREFIX = "NTP";
-    private static Map<TeamInfo, List<String>> teams = new HashMap<>();
-    private static List<Integer> list = new ArrayList<>();
+    private static Map<TeamInfo, List<String>> teams = new Object2ObjectOpenHashMap<>();
+    private static IntList list = new IntArrayList();
     private static Plugin plugin;
 
     /**
@@ -37,7 +41,7 @@ final class NametagManager {
     static void load() {
         plugin = NametagPlugin.getInstance();
 
-        for (TeamInfo teamInfo : getTeams()) {
+        for (val teamInfo : getTeams()) {
             int entry = -1;
 
             try {
@@ -46,20 +50,16 @@ final class NametagManager {
                 plugin.getLogger().log(Level.FINEST, "Failed to parse integer: " + teamInfo.getName());
             }
 
-            if (entry != -1) {
+            if (entry != -1)
                 list.add(entry);
-            }
         }
     }
 
     static boolean isManaged(String player) {
-        for (Entry<TeamInfo, List<String>> entry : teams.entrySet()) {
-            for (String listedPlayer : entry.getValue()) {
-                if (listedPlayer.equalsIgnoreCase(player)) {
+        for (val entry : teams.entrySet())
+            for (val listedPlayer : entry.getValue())
+                if (listedPlayer.equalsIgnoreCase(player))
                     return true;
-                }
-            }
-        }
 
         return false;
     }
@@ -79,17 +79,13 @@ final class NametagManager {
      * @param suffix The suffix to set for the given player.
      */
     static void update(String player, String prefix, String suffix) {
-        if (prefix == null || prefix.isEmpty()) {
+        if (prefix == null || prefix.isEmpty())
             prefix = getPrefix(player);
 
-        }
-
-        if (suffix == null || suffix.isEmpty()) {
+        if (suffix == null || suffix.isEmpty())
             suffix = getSuffix(player);
 
-        }
-
-        TeamInfo teamInfo = getTeamInfo(prefix, suffix);
+        val teamInfo = getTeamInfo(prefix, suffix);
 
         addToTeam(teamInfo, player);
     }
@@ -109,15 +105,13 @@ final class NametagManager {
      * @param suffix The suffix to set for the given player.
      */
     static void overlap(String player, String prefix, String suffix) {
-        if (prefix == null) {
+        if (prefix == null)
             prefix = "";
-        }
 
-        if (suffix == null) {
+        if (suffix == null)
             suffix = "";
-        }
 
-        TeamInfo t = getTeamInfo(prefix, suffix);
+        val t = getTeamInfo(prefix, suffix);
 
         addToTeam(t, player);
     }
@@ -138,13 +132,10 @@ final class NametagManager {
      * @return The player's prefix.
      */
     static String getPrefix(String player) {
-        for (TeamInfo team : getTeams()) {
-            for (String p : getTeamPlayers(team)) {
-                if (p.equals(player)) {
+        for (val team : getTeams())
+            for (val p : getTeamPlayers(team))
+                if (p.equals(player))
                     return team.getPrefix();
-                }
-            }
-        }
 
         return "";
     }
@@ -156,13 +147,10 @@ final class NametagManager {
      * @return The player's suffix.
      */
     static String getSuffix(String player) {
-        for (TeamInfo team : getTeams()) {
-            for (String p : getTeamPlayers(team)) {
-                if (p.equals(player)) {
+        for (val team : getTeams())
+            for (val p : getTeamPlayers(team))
+                if (p.equals(player))
                     return team.getSuffix();
-                }
-            }
-        }
 
         return "";
     }
@@ -185,8 +173,9 @@ final class NametagManager {
      */
     static void sendTeamsToPlayer(Player player) {
         try {
-            for (TeamInfo team : getTeams()) {
-                PacketHandler packet = new PacketHandler(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList<String>(), 0);
+            for (val team : getTeams()) {
+                var packet = new PacketHandler(team.getName(), team.getPrefix(), team.getSuffix(),
+                        new ArrayList<String>(), 0);
                 packet.sendToPlayer(player);
                 packet = new PacketHandler(team.getName(), Arrays.asList(getTeamPlayers(team)), 3);
                 packet.sendToPlayer(player);
@@ -202,26 +191,25 @@ final class NametagManager {
      * the plugin is disabled.
      */
     public static void reset() {
-        for (TeamInfo team : getTeams()) {
+        for (val team : getTeams())
             removeTeam(team);
-        }
     }
 
     /**
      * Declares a new team in the scoreboard.dat of the given main world.
      * 
-     * @param name The team name.
+     * @param name   The team name.
      * @param prefix The team's prefix.
      * @param suffix The team's suffix.
      * @return The created TeamInfo.
      */
     private static TeamInfo declareTeam(String name, String prefix, String suffix) {
         if (getTeam(name) != null) {
-            TeamInfo team = getTeam(name);
+            val team = getTeam(name);
             removeTeam(team);
         }
 
-        TeamInfo team = new TeamInfo(name);
+        val team = new TeamInfo(name);
 
         team.setPrefix(prefix);
         team.setSuffix(suffix);
@@ -243,13 +231,12 @@ final class NametagManager {
     private static TeamInfo getTeamInfo(String prefix, String suffix) {
         update();
 
-        for (int t : list.toArray(new Integer[list.size()])) {
+        for (int t : list) {
             if (getTeam(TEAM_NAME_PREFIX + t) != null) {
-                TeamInfo team = getTeam(TEAM_NAME_PREFIX + t);
+                val team = getTeam(TEAM_NAME_PREFIX + t);
 
-                if (team.getSuffix().equals(suffix) && team.getPrefix().equals(prefix)) {
+                if (team != null && team.getSuffix().equals(suffix) && team.getPrefix().equals(prefix))
                     return team;
-                }
             }
         }
 
@@ -268,12 +255,11 @@ final class NametagManager {
         while (cont) {
             cont = false;
 
-            for (int t : list.toArray(new Integer[list.size()])) {
+            for (int t : list) {
                 if (t == at) {
                     at++;
                     cont = true;
                 }
-
             }
         }
 
@@ -285,17 +271,18 @@ final class NametagManager {
      * Removes any teams that do not have any players in them.
      */
     private static void update() {
-        for (TeamInfo team : getTeams()) {
+        for (val team : getTeams()) {
             int entry = -1;
 
             try {
                 entry = Integer.parseInt(team.getName());
-            } catch (Exception exc) {}
+            } catch (Exception exc) {
+            }
 
             if (entry != -1) {
                 if (getTeamPlayers(team).length == 0) {
                     removeTeam(team);
-                    list.remove(new Integer(entry));
+                    list.removeInt(entry);
                 }
             }
         }
@@ -308,8 +295,9 @@ final class NametagManager {
      */
     private static void sendPacketsAddTeam(TeamInfo team) {
         try {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                PacketHandler mod = new PacketHandler(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList<String>(), 0);
+            for (val p : Bukkit.getOnlinePlayers()) {
+                val mod = new PacketHandler(team.getName(), team.getPrefix(), team.getSuffix(),
+                        new ArrayList<String>(), 0);
                 mod.sendToPlayer(p);
             }
         } catch (Exception exc) {
@@ -326,19 +314,17 @@ final class NametagManager {
     private static void sendPacketsRemoveTeam(TeamInfo team) {
         boolean cont = false;
 
-        for (TeamInfo t : getTeams()) {
-            if (t == team) {
+        for (val t : getTeams())
+            if (t == team)
                 cont = true;
-            }
-        }
 
-        if (!cont) {
+        if (!cont)
             return;
-        }
 
         try {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                PacketHandler mod = new PacketHandler(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList<String>(), 1);
+            for (val p : Bukkit.getOnlinePlayers()) {
+                val mod = new PacketHandler(team.getName(), team.getPrefix(), team.getSuffix(),
+                        new ArrayList<String>(), 1);
                 mod.sendToPlayer(p);
             }
         } catch (Exception exc) {
@@ -350,24 +336,21 @@ final class NametagManager {
     /**
      * Sends out packets to players to add the given player to the given team
      * 
-     * @param team - The team to use
+     * @param team   - The team to use
      * @param player - The player to add
      */
     private static void sendPacketsAddToTeam(TeamInfo team, String player) {
         boolean cont = false;
 
-        for (TeamInfo t : getTeams()) {
-            if (t == team) {
+        for (val t : getTeams())
+            if (t == team)
                 cont = true;
-            }
-        }
 
-        if (!cont) {
+        if (!cont)
             return;
-        }
 
         try {
-            for (Player p : Bukkit.getOnlinePlayers()) {
+            for (val p : Bukkit.getOnlinePlayers()) {
                 PacketHandler packet = new PacketHandler(team.getName(), Arrays.asList(player), 3);
                 packet.sendToPlayer(p);
             }
@@ -381,29 +364,24 @@ final class NametagManager {
      * Sends out packets to players to remove the given player from the given
      * team.
      * 
-     * @param team - The team to remove from
+     * @param team   - The team to remove from
      * @param player - The player to remove
      */
     private static void sendPacketsRemoveFromTeam(TeamInfo team, String player) {
         boolean cont = false;
 
-        for (TeamInfo t : getTeams()) {
-            if (t == team) {
-                for (String p : getTeamPlayers(t)) {
-                    if (p.equals(player)) {
+        for (val t : getTeams())
+            if (t == team)
+                for (String p : getTeamPlayers(t))
+                    if (p.equals(player))
                         cont = true;
-                    }
-                }
-            }
-        }
 
-        if (!cont) {
+        if (!cont)
             return;
-        }
 
         try {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                PacketHandler packet = new PacketHandler(team.getName(), Arrays.asList(player), 4);
+            for (val p : Bukkit.getOnlinePlayers()) {
+                val packet = new PacketHandler(team.getName(), Arrays.asList(player), 4);
                 packet.sendToPlayer(p);
             }
         } catch (Exception exc) {
@@ -414,17 +392,18 @@ final class NametagManager {
 
     private static void addToTeam(TeamInfo team, String player) {
         removeFromTeam(player);
-        List<String> list = teams.get(team);
+        val list = teams.get(team);
 
         if (list != null) {
             list.add(player);
 
-            Player p = Bukkit.getPlayerExact(player);
+            val p = Bukkit.getPlayerExact(player);
 
-            if (p != null) {
+            if (p != null)
                 sendPacketsAddToTeam(team, p.getName());
-            } else {
-                OfflinePlayer p2 = Bukkit.getOfflinePlayer(player);
+            else {
+                @SuppressWarnings("deprecation")
+                val p2 = Bukkit.getOfflinePlayer(player);
                 sendPacketsAddToTeam(team, p2.getName());
             }
         }
@@ -435,34 +414,24 @@ final class NametagManager {
         sendPacketsAddTeam(team);
     }
 
-    private static boolean removeTeam(String name) {
-        for (TeamInfo team : teams.keySet().toArray(new TeamInfo[teams.size()])) {
-            if (team.getName().equals(name)) {
-                removeTeam(team);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private static void removeTeam(TeamInfo team) {
         sendPacketsRemoveTeam(team);
         teams.remove(team);
     }
 
     private static TeamInfo removeFromTeam(String player) {
-        for (TeamInfo team : teams.keySet().toArray(new TeamInfo[teams.size()])) {
-            List<String> list = teams.get(team);
+        for (val team : teams.keySet()) {
+            val list = teams.get(team);
 
-            for (String p : list.toArray(new String[list.size()])) {
+            for (val p : list) {
                 if (p.equals(player)) {
-                    Player pl = Bukkit.getPlayerExact(player);
+                    val pl = Bukkit.getPlayerExact(player);
 
-                    if (pl != null) {
+                    if (pl != null)
                         sendPacketsRemoveFromTeam(team, pl.getName());
-                    } else {
-                        OfflinePlayer p2 = Bukkit.getOfflinePlayer(p);
+                    else {
+                        @SuppressWarnings("deprecation")
+                        val p2 = Bukkit.getOfflinePlayer(p);
                         sendPacketsRemoveFromTeam(team, p2.getName());
                     }
 
@@ -476,21 +445,20 @@ final class NametagManager {
         return null;
     }
 
+    @Nullable
     private static TeamInfo getTeam(String name) {
-        for (TeamInfo team : teams.keySet().toArray(new TeamInfo[teams.size()])) {
-            if (team.getName().equals(name)) {
+        for (val team : teams.keySet().toArray(new TeamInfo[teams.size()]))
+            if (team.getName().equals(name))
                 return team;
-            }
-        }
 
         return null;
     }
 
     private static TeamInfo[] getTeams() {
-        TeamInfo[] list = new TeamInfo[teams.size()];
+        val list = new TeamInfo[teams.size()];
         int at = 0;
 
-        for (TeamInfo team : teams.keySet().toArray(new TeamInfo[teams.size()])) {
+        for (val team : teams.keySet()) {
             list[at] = team;
             at++;
         }
@@ -499,13 +467,8 @@ final class NametagManager {
     }
 
     private static String[] getTeamPlayers(TeamInfo team) {
-        List<String> list = teams.get(team);
-
-        if (list != null) {
-            return list.toArray(new String[list.size()]);
-        } else {
-            return new String[0];
-        }
+        val list = teams.get(team);
+        return list != null ? list.toArray(new String[list.size()]) : new String[0];
     }
 
 }

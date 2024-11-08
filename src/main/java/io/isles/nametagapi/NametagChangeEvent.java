@@ -4,6 +4,9 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * This event is fired whenever a nametag changes via NametagAPI.
  * 
@@ -11,15 +14,16 @@ import org.bukkit.event.HandlerList;
  * @author Hyphenical Technologies (Modifiers)
  */
 public class NametagChangeEvent extends Event implements Cancellable {
-
     private static final HandlerList handlers = new HandlerList();
-    private final String player;
-    private final String oldPrefix;
-    private final String oldSuffix;
-    private String newPrefix;
-    private String newSuffix;
+    @Getter
+    private final String playerName;
+    private String oldPrefix, oldSuffix, newPrefix, newSuffix;
+    @Getter
     private NametagChangeType type;
+    @Getter
     private NametagChangeReason reason;
+    @Getter
+    @Setter
     private boolean cancelled;
 
     /**
@@ -31,16 +35,17 @@ public class NametagChangeEvent extends Event implements Cancellable {
      * 
      * Constructs a new NametagChangeEvent with the given properties.
      * 
-     * @param player The player this event is associated with.
-     * @param oldPrefix The current prefix for the player.
-     * @param oldSuffix The current suffix for the player.
-     * @param newPrefix The prefix to set for the player.
-     * @param newSuffix The suffix to set for the player.
-     * @param type The type of nametag change.
-     * @param reason The reason why the nametag is being changed.
+     * @param playerName The player this event is associated with.
+     * @param oldPrefix  The current prefix for the player.
+     * @param oldSuffix  The current suffix for the player.
+     * @param newPrefix  The prefix to set for the player.
+     * @param newSuffix  The suffix to set for the player.
+     * @param type       The type of nametag change.
+     * @param reason     The reason why the nametag is being changed.
      */
-    public NametagChangeEvent(String player, String oldPrefix, String oldSuffix, String newPrefix, String newSuffix, NametagChangeType type, NametagChangeReason reason) {
-        this.player = player;
+    public NametagChangeEvent(String playerName, String oldPrefix, String oldSuffix, String newPrefix, String newSuffix,
+            NametagChangeType type, NametagChangeReason reason) {
+        this.playerName = playerName;
         this.oldPrefix = oldPrefix;
         this.oldSuffix = oldSuffix;
         this.newPrefix = newPrefix;
@@ -49,38 +54,9 @@ public class NametagChangeEvent extends Event implements Cancellable {
         this.reason = reason;
     }
 
-    /**
-     * Sets whether this event should be cancelled or not.
-     * 
-     * @param cancelled the boolean to set as the cancelled state.
-     */
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
-
-    /**
-     * Returns whether this event has been cancelled or not.
-     * 
-     * @return {@code true} if the event is cancelled, {@code false} otherwise.
-     */
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
     @Override
     public HandlerList getHandlers() {
         return handlers;
-    }
-
-    /**
-     * Returns the player's name who is getting their nametag changed.
-     * 
-     * @return The player's name.
-     */
-    public String getPlayerName() {
-        return player;
     }
 
     /**
@@ -135,27 +111,8 @@ public class NametagChangeEvent extends Event implements Cancellable {
      * 
      * @param suffix The suffix to set.
      */
-    public void setSufix(String suffix) {
+    public void setSuffix(String suffix) {
         newSuffix = suffix;
-    }
-
-    /**
-     * Returns the type of nametag change the player will undergo if this event
-     * is not cancelled.
-     * 
-     * @return The NametagChangeType associated with this event.
-     */
-    public NametagChangeType getType() {
-        return type;
-    }
-
-    /**
-     * Returns the reason for the firing of this event.
-     * 
-     * @return The NametagChangeReason associated with this event.
-     */
-    public NametagChangeReason getReason() {
-        return reason;
     }
 
     /**

@@ -5,6 +5,9 @@ import org.bukkit.plugin.Plugin;
 
 import io.isles.nametagapi.NametagChangeEvent.NametagChangeReason;
 import io.isles.nametagapi.NametagChangeEvent.NametagChangeType;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.val;
 
 /**
  * This API class is used to set prefixes and suffixes at a high level. These
@@ -15,6 +18,7 @@ import io.isles.nametagapi.NametagChangeEvent.NametagChangeType;
  * @author Levi Webb (Original)
  * @author Hyphenical Technologies (Modifiers)
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class NametagAPI {
 
     private static Plugin plugin;
@@ -22,9 +26,6 @@ public final class NametagAPI {
     static {
         plugin = NametagPlugin.getInstance();
     }
-
-    /** Prevent class instantiation. */
-    private NametagAPI() {}
 
     /**
      * Sets the custom prefix for the given player <br>
@@ -36,18 +37,13 @@ public final class NametagAPI {
      * @param prefix The prefix to use.
      */
     public static void setPrefix(final String player, final String prefix) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            val event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, "",
+                    NametagChangeType.SOFT, NametagChangeReason.CUSTOM);
+            Bukkit.getServer().getPluginManager().callEvent(event);
 
-            @Override
-            public void run() {
-                NametagChangeEvent event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, "", NametagChangeType.SOFT, NametagChangeReason.CUSTOM);
-                Bukkit.getServer().getPluginManager().callEvent(event);
-
-                if (!event.isCancelled()) {
-                    NametagManager.update(player, prefix, "");
-                }
-            }
-
+            if (!event.isCancelled())
+                NametagManager.update(player, prefix, "");
         });
     }
 
@@ -58,18 +54,13 @@ public final class NametagAPI {
      * @param suffix The suffix to use.
      */
     public static void setSuffix(final String player, final String suffix) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            val event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), "", suffix,
+                    NametagChangeType.SOFT, NametagChangeReason.CUSTOM);
+            Bukkit.getServer().getPluginManager().callEvent(event);
 
-            @Override
-            public void run() {
-                NametagChangeEvent event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), "", suffix, NametagChangeType.SOFT, NametagChangeReason.CUSTOM);
-                Bukkit.getServer().getPluginManager().callEvent(event);
-
-                if (!event.isCancelled()) {
-                    NametagManager.update(player, "", suffix);
-                }
-            }
-
+            if (!event.isCancelled())
+                NametagManager.update(player, "", suffix);
         });
     }
 
@@ -83,18 +74,13 @@ public final class NametagAPI {
      * @param suffix The suffix to use.
      */
     public static void setNametagHard(final String player, final String prefix, final String suffix) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            val event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, suffix,
+                    NametagChangeType.HARD, NametagChangeReason.CUSTOM);
+            Bukkit.getServer().getPluginManager().callEvent(event);
 
-            @Override
-            public void run() {
-                NametagChangeEvent event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, suffix, NametagChangeType.HARD, NametagChangeReason.CUSTOM);
-                Bukkit.getServer().getPluginManager().callEvent(event);
-
-                if (!event.isCancelled()) {
-                    NametagManager.overlap(player, prefix, suffix);
-                }
-            }
-
+            if (!event.isCancelled())
+                NametagManager.overlap(player, prefix, suffix);
         });
     }
 
@@ -108,18 +94,13 @@ public final class NametagAPI {
      * @param suffix The suffix to use.
      */
     public static void setNametagSoft(final String player, final String prefix, final String suffix) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            val event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, suffix,
+                    NametagChangeType.SOFT, NametagChangeReason.CUSTOM);
+            Bukkit.getServer().getPluginManager().callEvent(event);
 
-            @Override
-            public void run() {
-                NametagChangeEvent event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, suffix, NametagChangeType.SOFT, NametagChangeReason.CUSTOM);
-                Bukkit.getServer().getPluginManager().callEvent(event);
-
-                if (!event.isCancelled()) {
-                    NametagManager.update(player, prefix, suffix);
-                }
-            }
-
+            if (!event.isCancelled())
+                NametagManager.update(player, prefix, suffix);
         });
     }
 
@@ -140,18 +121,13 @@ public final class NametagAPI {
      * @param suffix The suffix to use.
      */
     public static void updateNametagHard(final String player, final String prefix, final String suffix) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            val event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, suffix,
+                    NametagChangeType.HARD, NametagChangeReason.CUSTOM);
+            Bukkit.getServer().getPluginManager().callEvent(event);
 
-            @Override
-            public void run() {
-                NametagChangeEvent event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, suffix, NametagChangeType.HARD, NametagChangeReason.CUSTOM);
-                Bukkit.getServer().getPluginManager().callEvent(event);
-
-                if (!event.isCancelled()) {
-                    NametagManager.overlap(player, prefix, suffix);
-                }
-            }
-
+            if (!event.isCancelled())
+                NametagManager.overlap(player, prefix, suffix);
         });
     }
 
@@ -177,18 +153,13 @@ public final class NametagAPI {
      * @param suffix The suffix to use.
      */
     public static void updateNametagSoft(final String player, final String prefix, final String suffix) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            val event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, suffix,
+                    NametagChangeType.SOFT, NametagChangeReason.CUSTOM);
+            Bukkit.getServer().getPluginManager().callEvent(event);
 
-            @Override
-            public void run() {
-                NametagChangeEvent event = new NametagChangeEvent(player, getPrefix(player), getSuffix(player), prefix, suffix, NametagChangeType.SOFT, NametagChangeReason.CUSTOM);
-                Bukkit.getServer().getPluginManager().callEvent(event);
-
-                if (!event.isCancelled()) {
-                    NametagManager.update(player, prefix, suffix);
-                }
-            }
-
+            if (!event.isCancelled())
+                NametagManager.update(player, prefix, suffix);
         });
     }
 
@@ -202,14 +173,7 @@ public final class NametagAPI {
      * @param player The player to reset.
      */
     public static void resetNametag(final String player) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-            @Override
-            public void run() {
-                NametagManager.clear(player);
-            }
-
-        });
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> NametagManager.clear(player));
     }
 
     /**
