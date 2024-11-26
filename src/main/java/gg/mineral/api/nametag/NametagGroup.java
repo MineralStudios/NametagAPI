@@ -35,7 +35,7 @@ public class NametagGroup {
 
     public void remove(Player player) {
         if (deleted)
-            throw new IllegalStateException("This group has been deleted.");
+            return;
 
         manager.clear(player.getName());
         players.remove(player);
