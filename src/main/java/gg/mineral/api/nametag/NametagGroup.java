@@ -26,7 +26,7 @@ public class NametagGroup {
         if (deleted)
             throw new IllegalStateException("This group has been deleted.");
 
-        for (Player player : players) {
+        for (val player : players) {
             this.players.add(player);
             manager.sendTeamsToPlayer(player);
             manager.clear(player.getName());
@@ -38,8 +38,6 @@ public class NametagGroup {
             throw new IllegalStateException("This group has been deleted.");
 
         manager.clear(player.getName());
-        val team = manager.getTeam(player.getName());
-        manager.sendPacketsRemoveTeam(team, player);
         players.remove(player);
     }
 
