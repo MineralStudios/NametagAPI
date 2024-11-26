@@ -312,6 +312,32 @@ public final class NametagManager {
     }
 
     /**
+     * Sends packets out to a player to remove the given team
+     * 
+     * @param team   the team to remove
+     * @param player the player to remove the team from
+     */
+    public void sendPacketsRemoveTeam(TeamInfo team, Player player) {
+        boolean cont = false;
+
+        for (val t : getTeams())
+            if (t == team)
+                cont = true;
+
+        if (!cont)
+            return;
+
+        try {
+            val mod = new PacketHandler(team.getName(), team.getPrefix(), team.getSuffix(),
+                    new ArrayList<String>(), 1);
+            mod.sendToPlayer(player);
+        } catch (Exception exc) {
+            plugin.getLogger().warning("Failed to send packet for player (Packet209SetScoreboardTeam) : ");
+            exc.printStackTrace();
+        }
+    }
+
+    /**
      * Sends packets out to players to remove the given team
      * 
      * @param team the team to remove
@@ -455,7 +481,7 @@ public final class NametagManager {
     }
 
     @Nullable
-    private TeamInfo getTeam(String name) {
+    public TeamInfo getTeam(String name) {
         for (val team : teams.keySet().toArray(new TeamInfo[teams.size()]))
             if (team.getName().equals(name))
                 return team;

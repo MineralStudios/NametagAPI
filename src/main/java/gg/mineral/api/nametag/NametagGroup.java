@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import io.isles.nametagapi.NametagManager;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import lombok.Getter;
+import lombok.val;
 
 public class NametagGroup {
     @Getter
@@ -37,6 +38,8 @@ public class NametagGroup {
             throw new IllegalStateException("This group has been deleted.");
 
         manager.clear(player.getName());
+        val team = manager.getTeam(player.getName());
+        manager.sendPacketsRemoveTeam(team, player);
         players.remove(player);
     }
 
