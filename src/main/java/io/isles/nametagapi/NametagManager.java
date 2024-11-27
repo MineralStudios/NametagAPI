@@ -365,6 +365,36 @@ public final class NametagManager {
         }
     }
 
+    public void removeAllTeamsForPlayer(Player player) {
+        for (val team : getTeams()) {
+            sendPacketsRemoveTeamForPlayer(team, player);
+            teams.computeIfPresent(team, (k, v) -> {
+                v.remove(player.getName());
+                return v;
+            });
+        }
+    }
+
+    private void sendPacketsRemoveTeamForPlayer(TeamInfo team, Player player) {
+        boolean cont = false;
+
+        for (val t : getTeams())
+            if (t == team)
+                cont = true;
+
+        if (!cont)
+            return;
+
+        try {
+            val mod = new PacketHandler(team.getName(), team.getPrefix(), team.getSuffix(),
+                    new ArrayList<String>(), 1);
+            mod.sendToPlayer(player);
+        } catch (Exception exc) {
+            plugin.getLogger().warning("Failed to send packet for player (Packet209SetScoreboardTeam) : ");
+            exc.printStackTrace();
+        }
+    }
+
     /**
      * Sends out packets to players to add the given player to the given team
      * 

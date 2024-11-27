@@ -38,6 +38,7 @@ public class NametagGroup {
             return;
 
         manager.clear(player.getName());
+        manager.removeAllTeamsForPlayer(player);
         players.remove(player);
     }
 
