@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'gg.mineral.mineralspigot:mineralspigot-server:20250507-18.30.42'
+    compileOnly 'gg.mineral.mineralspigot:mineralspigot-server:20250717-19.37.32'
     compileOnly 'org.projectlombok:lombok:1.18.40'
     annotationProcessor 'org.projectlombok:lombok:1.18.40'
 }
