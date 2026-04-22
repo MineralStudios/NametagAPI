@@ -20,8 +20,8 @@ repositories {
 
 dependencies {
     compileOnly 'gg.mineral.mineralspigot:mineralspigot-server:20250717-19.37.32'
-    compileOnly 'org.projectlombok:lombok:1.18.40'
-    annotationProcessor 'org.projectlombok:lombok:1.18.40'
+    compileOnly 'org.projectlombok:lombok:1.18.46'
+    annotationProcessor 'org.projectlombok:lombok:1.18.46'
 }
 
 tasks.withType(JavaCompile) {
